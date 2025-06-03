@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dia dos Namorados</title>
+  <style>
+    body { margin:0; padding:0; background:#fff0f0; font-family:'Segoe UI', sans-serif; height:100vh; display:flex; justify-content:center; align-items:center;}
+    .container {text-align:center; border:2px solid rgb(255, 255, 255); padding:20px 30px; border-radius:8px; background:white; width:90vw; max-width:600px; word-wrap:break-word; box-sizing:border-box;}
+    #pergunta {color:black; font-size:1.8em; margin:0; line-height:1.4;}
+    #botaoProximo {margin-top:20px; padding:10px 20px; font-size:1em; border:2px solid rgb(0, 0, 0); border-radius:6px; background:white; cursor:pointer; transition: background-color 0.3s, color 0.3s;}
+    #botaoProximo:hover {background:#ffffff; color:white;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="pergunta"></h1>
+    <button id="botaoProximo">➡️</button>
+  </div>
+
+  <script>
+    const frase = "E agora, finalmente seu PRESENTE 🎁!Está escondido e você precisa encontrar.Vou te dar algumas dicas:";
+    const elemento = document.getElementById("pergunta");
+    const botao = document.getElementById("botaoProximo");
+
+    const palavras = frase.split(" ");
+    let i = 0;
+
+    function mostrarPalavras() {
+      if (i < palavras.length) {
+        elemento.innerHTML += palavras[i] + " ";
+        i++;
+        setTimeout(mostrarPalavras, 200);
+      }
+    }
+
+    botao.addEventListener("click", () => {
+      window.location.href = "teste6.html";  // <-- Aqui é o redirecionamento para html6.html
+    });
+
+    mostrarPalavras();
+  </script>
+</body>
+</html>
