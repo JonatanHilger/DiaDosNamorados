@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roleta de Jantar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff0f0;
+      text-align: center;
+      padding: 30px;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    #roleta-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+    }
+
+    #ponteiro {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid rgba(255, 0, 0, 0.784);
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-20%) rotate(180deg);
+      z-index: 10;
+    }
+
+    #roleta {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 8px solid #ff0000;
+      position: relative;
+      overflow: hidden;
+      transition: transform 4s ease-out;
+    }
+
+    .fatia {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+      transform-origin: center;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      z-index: 1;
+    }
+
+    .fatia span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(30%, -80%);
+      font-weight: bold;
+      font-size: 16px;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    .fatia0 { background-color: #f2ff02; transform: rotate(0deg); --rotacao: 0deg; }
+    .fatia1 { background-color: #ffa500; transform: rotate(90deg); --rotacao: 90deg; }
+    .fatia2 { background-color: #99ff99; transform: rotate(180deg); --rotacao: 180deg; }
+    .fatia3 { background-color: #4c994c; transform: rotate(270deg); --rotacao: 270deg; }
+
+    .fatia.destacada {
+      box-shadow: 0 0 15px 5px gold;
+      transform: scale(1.1) rotate(var(--rotacao));
+      z-index: 5;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #fff;
+      border: 2px solid #ff0000;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #resultado {
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #botaoProximo {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: 2px solid rgb(0, 0, 0);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      display: none;
+    }
+
+    #botaoProximo:hover {
+      background: #ffffff;
+      color: white;
+    }
+
+    .balao, .foguete, .fogo {
+      position: absolute;
+      z-index: 0;
+      opacity: 0.8;
+    }
+
+    .balao {
+      width: 30px;
+      height: 40px;
+      background-color: red;
+      border-radius: 50% 50% 50% 50%;
+      animation: subir 5s linear forwards;
+    }
+
+    .foguete {
+      width: 6px;
+      height: 25px;
+      background-color: black;
+      animation: disparar 2s linear forwards;
+    }
+
+    .fogo {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: yellow;
+      animation: explodir 2s linear forwards;
+    }
+
+    @keyframes subir {
+      0% { bottom: 0; opacity: 1; }
+      100% { bottom: 100%; opacity: 0; }
+    }
+
+    @keyframes disparar {
+      0% { bottom: 0; opacity: 1; }
+      100% { bottom: 80%; opacity: 0; }
+    }
+
+    @keyframes explodir {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>O que vamos jantar hoje? 🍽️</h1>
+
+  <div id="roleta-container">
+    <div id="ponteiro"></div>
+    <div id="roleta">
+      <div class="fatia fatia0"><span>Churrasco 🥩</span></div>
+      <div class="fatia fatia1"><span>Xis 🌮</span></div>
+      <div class="fatia fatia2"><span>Hamburguer 🍔</span></div>
+      <div class="fatia fatia3"><span>Pizza 🍕</span></div>
+    </div>
+  </div>
+
+  <button id="girar">Girar Roleta</button>
+  <div id="resultado"></div>
+  <button id="botaoProximo">➡️</button>
+
+  <script>
+    const roleta = document.getElementById('roleta');
+    const resultado = document.getElementById('resultado');
+    const botaoProximo = document.getElementById('botaoProximo');
+    const botaoGirar = document.getElementById('girar');
+    const fatias = document.querySelectorAll('.fatia');
+    const opcoes = ["Churrasco 🥩", "Xis 🌮", "Hamburguer 🍔", "Pizza 🍕"];
+
+    botaoGirar.addEventListener('click', () => {
+      fatias.forEach(f => f.classList.remove('destacada'));
+      botaoProximo.style.display = 'none';
+
+      const sorteado = Math.floor(Math.random() * 4);
+      const angulo = 360 * 5 + sorteado * 90 + 45;
+      roleta.style.transition = 'transform 4s ease-out';
+      roleta.style.transform = `rotate(-${angulo}deg)`;
+
+      botaoGirar.disabled = true;
+
+      setTimeout(() => {
+        resultado.innerHTML = `❤️ Hoje vamos comer: <strong>${opcoes[sorteado]}</strong> 😋`;
+        fatias[sorteado].classList.add('destacada');
+
+        botaoProximo.style.display = 'inline-block';
+
+        for (let i = 0; i < 30; i++) setTimeout(criarBalao, i * 300);
+        for (let i = 0; i < 20; i++) setTimeout(criarFoguete, i * 400);
+        for (let i = 0; i < 15; i++) setTimeout(criarFogos, i * 300);
+
+        setTimeout(() => {
+          botaoGirar.disabled = false;
+        }, 8000);
+      }, 4000);
+    });
+
+    botaoProximo.addEventListener('click', () => {
+      window.location.href = "teste5.html";  // aqui está o redirecionamento para a raspadinha
+    });
+
+    function criarBalao() {
+      const balao = document.createElement('div');
+      balao.classList.add('balao');
+      balao.style.left = Math.random() * 100 + 'vw';
+      document.body.appendChild(balao);
+      setTimeout(() => balao.remove(), 5000);
+    }
+
+    function criarFoguete() {
+      const foguete = document.createElement('div');
+      foguete.classList.add('foguete');
+      foguete.style.left = Math.random() * 100 + 'vw';
+      document.body.appendChild(foguete);
+      setTimeout(() => foguete.remove(), 2000);
+    }
+
+    function criarFogos() {
+      const fogo = document.createElement('div');
+      fogo.classList.add('fogo');
+      fogo.style.left = Math.random() * 100 + 'vw';
+      fogo.style.top = Math.random() * 100 + 'vh';
+      document.body.appendChild(fogo);
+      setTimeout(() => fogo.remove(), 2000);
+    }
+  </script>
+</body>
+</html>
